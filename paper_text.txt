@@ -1,0 +1,1163 @@
+
+===== PAGE 1 =====
+IEEE/ASME TRANSACTIONS ON MECHA TRONICS, VOL. 31, NO. 2, APRIL 2026 1741
+Phase Space Reconstruction-Based Online
+Roughness Monitoring in Robotic Milling of
+Aircraft Skin Edge
+Han-yu Zhang ,W e iX u , Member, IEEE , Qing-yu Peng, Dong-fang Wang , Cheng Jiang ,
+and Wen-long Li , Member, IEEE
+Abstract— In robotic milling, monitoring surface rough-
+ness in real-time is essential for maintaining the quality
+of aircraft skin edges. However, existing techniques often
+struggle with accuracy and robustness due to the com-
+plex conditions during milling. This article introduces a
+novel approach to real-time predict surface roughness in
+robotic milling of aircraft skin edges. The method begins
+by dynamically adjusting vibration signals using the fre-
+quency response function to maintain prediction accuracy.
+Subsequently, the phase space reconstruction is employed
+to map the vibration signals from time domain into phase
+space diffeomorphic to the robotic system, thereby un-
+covering the system’s dynamic characteristics. Then, the
+Gramian angular summation ﬁeld algorithm is used for fea-
+ture extraction from the phase space trajectories, followed
+by classiﬁcation using a convolutional neural network. A
+vibration-roughness dataset is constructed based on prac-
+tical experiments in order to train the proposed model.
+The predictability of the machining system is demonstrated
+quantitatively. Furthermore, the model’s practicality is val-
+idated through online experiments. The prediction results
+based on the test set conﬁrm that this approach offers sig-
+niﬁcant improvements in prediction accuracy and robust-
+ness over existing methods.
+Index Terms— Aircraft skin parts, online roughness mon-
+itoring, phase space reconstruction, robotic milling.
+NOMENCLA TURE
+q(t) Displacement response matrix.
+F(t) Excitation matrix.
+M Mass matrix of the system.
+Received 4 January 2025; revised 26 March 2025 and 26 May 2025;
+accepted 20 August 2025. Date of publication 3 October 2025; date
+of current version 20 April 2026. Recommended by T echnical Editor A.
+Visioli and Senior Editor M. Indri. This work was supported in part by the
+National Natural Science Foundation of China under Grant 52205524,
+Grant 52575573 and Grant 52188102, in part by China Postdoctoral
+Science Foundation under Grant 2022M721247, and in part by the Open
+Projects of State Key Laboratory of Intelligent Manufacturing Equipment
+and T echnology under Grant IMETKF2025001. (Corresponding author:
+Wei Xu.)
+The authors are with the State Key Laboratory of Intelligent Manu-
+facturing Equipment and T echnology , Huazhong University of Science
+and T echnology , Wuhan 430074, China (e-mail: 2537079261@qq.com;
+weixu.chn@gmail.com; 83524374@qq.com; 978427099@qq.com;
+307080666@qq.com; wlli@mail.hust.edu.cn).
+Color versions of one or more ﬁgures in this article are available at
+https://doi.org/10.1109/TMECH.2025.3603285.
+Digital Object Identiﬁer 10.1109/TMECH.2025.3603285
+C Damping matrix of the system.
+K Stiffness matrix of the system.
+q(ω) Fourier transform expression of q(t).
+F(ω) Fourier transform expression of F(t).
+H(ω)=[ Hij(ω)] Displacement FRF of the system.
+Ha(ω) Acceleration FRF of the system.
+k = 1, 2,...,K Discrete points along the feed direction.
+HR
+ij(ω) Real part of Hij(ω).
+HI
+ij(ω) Imaginary part of Hij(ω).
+ωm Modal frequency of the system.
+ξm Modal damping of the system.
+ε V ariation rate of modal parameters.
+Δk Distance of adjacent discrete points.
+xt Coordinates along feed directions.
+L Entire length of milling area of skin parts.
+a(ω) Fourier transform expression of ¨q(t).
+Ha(ω)+ Moore–Penrose pseudoinverse of Ha(ω).
+F−1{/squaresmallsolid} Inverse Fourier transform.
+si Phase space vector.
+sη(i) Nearest neighbors of si.
+n Number of vibration sampling points.
+m Embedding dimension.
+τ Delay time.
+S Phase space trajectory.
+I(P,Q) Mutual information.
+τs Optimal delay time.
+ms Optimal embedding dimension.
+Rm(i) Euclidean distance between si and sη(i).
+a(i,m) Distance ratio between siand sη(i).
+E(m) Distance ratio within entire phase space S
+E1(m) V ariation ratio ofE(m).
+δ Upper limit of the derivative of E1(m).
+~si Angle representation of si.
+s0 Reference vector in phase space.
+~S Angle representation of S.
+I. I NTRODUCTION
+R
+OBOTS are increasingly employed in machining large-
+scale aircraft skin parts due to their versatility and cost
+efﬁciency [1], [2], [3]. A notable example is the robotic milling
+system developed by Fraunhofer IFAM to manufacture the tail-
+ﬁn of the Airbus A320 [4], as illustrated in Fig. 1. However,
+1083-4435 © 2025 IEEE. All rights reserved, including rights for text and data mining, and training of artiﬁcial intelligence and similar technologi es.
+Personal use is permitted, but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index. html
+for more information.
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 2 =====
+1742 IEEE/ASME TRANSACTIONS ON MECHA TRONICS, VOL. 31, NO. 2, APRIL 2026
+Fig. 1. Fraunhofer IFAM develops a robotic milling system for manu-
+facturing the tail-ﬁn of an Airbus 320 aircraft [4].
+vibration issues, stemming from the low stiffness and stability
+of both the robot arm and the ﬂexible skin parts [5], negatively
+impact robotic milling quality of aircraft skin parts. The surface
+quality of skin edges is essential for maintaining the aerody-
+namics, stealth properties, and structural integrity of the aircraft.
+An excessively rough surface can compromise the tight contact
+between skin components, impair surface sealing effectiveness,
+and degrade the aircraft’s overall performance. Therefore, pre-
+dicting surface roughness, especially in real-time during the
+robotic milling process, is crucial for ensuring high-quality and
+high efﬁciency aircraft manufacturing.
+Surface roughness is typically measured ofﬂine by manually
+selecting speciﬁc points on the machined surface for measure-
+ment [6]. This approach, however, is not only time-consuming
+but also prone to errors and inconsistencies, reducing its overall
+efﬁciency. While statistical[7] and mathematical [8], [9] models
+are often employed to predict roughness ofﬂine, these methods
+generally fail to capture the dynamic changes that occur during
+the machining process [10]. Consequently, their efﬁciency, ac-
+curacy, and reliability are limited. In contrast, online roughness
+monitoring enables real-time detection of machining irregulari-
+ties during robotic milling, leading to enhanced production yield
+and overall process efﬁciency.
+A. Related Works
+Online roughness monitoring is generally achieved indirectly
+through vibration measurement which can be categorized into
+noncontact and contact methods. Noncontact methods primarily
+include acoustic emission [11], [12], laser Doppler vibrometry
+[13], [14], and three-dimensional (3-D) point tracking with
+structured light systems [15], [16]. Acoustic emission suffers
+from low signal-to-noise ratios due to interference from indus-
+trial environmental noise. Laser Doppler vibrometry exhibits
+limited measurement accuracy for low-frequency noise [16]
+and can only capture vibrations along the normal direction.
+While 3-D point tracking and structured light systems offer a
+broader measurement range, they demonstrate lower precision
+and reduced signal-to-noise ratios [16]. Contact methods, such
+as accelerometer and dynamometer, cannot directly measure the
+machining area’s vibration but indirectly measures it at other
+positions in the machining system, such as the ﬁxture [17],
+spindle [18], and workpiece [19]. During the feeding of milling
+tool, sensors installed at ﬁxed points cannot discern whether
+changes in vibrations are caused by alterations in the machining
+position or by variations in the surface roughness. Liu et al. [20]
+correlated the cutting position with the monitoring signals of
+cutting force and acceleration. Y ao et al.[21], [22] established a
+position-dependent amplitude preprocessing function to adjust
+the amplitude of vibration signals. However, due to the nonlinear
+transmission characteristics of vibrations, the vibration propa-
+gation not only affects the amplitude but also induces phase
+shifts in vibration signals that remains uncompensated by the
+aforementioned methodologies.
+Signal-based prediction models extract features from the ac-
+quired vibration signals through time-domain [26], [27], and
+time-frequency domain [23], [24], [25] analyses. It mainly
+includes short-time Fourier transform [23], wavelet transform
+[24], Hilbert Huang transform [25], Gramian angular ﬁeld [26],
+and phase space reconstruction [27]. Recent years, AI-based
+methods have gained attention for their ﬂexibility, practical-
+ity, and stronger feature extraction ability [28]. For instance,
+Zhao et al. [29] developed an long short-term memory (LSTM)
+network for estimating material removal rates from vibration
+acceleration signals. Cao et al. [30] created a sparse Bayesian
+regression model to monitor machining errors by analyzing
+real-time milling force, cutting parameters, and positions. Lu
+et al. [31] used a convolutional neural network (CNN) classiﬁer
+to link vibration signals with machined surface images, while Li
+et al. [32] proposed a deep learning model incorporating machin-
+ing parameters and milling force signals to enhance prediction
+accuracy. He et al. [33] applied an symmetrized dot pattern
+(SDP)-CNN framework to accurately predict grinding quality
+from vibration signals. Existing methods rely on single-channel
+signal or simple combinations of multichannel signals, employ-
+ing feature extractors to achieve prediction. These approaches
+exhibit high sensitivity to noise and lack a comprehensive anal-
+ysis of the nonlinear characteristics embedded in signals.
+B. Contribution
+This article presents a comprehensive framework for rough-
+ness prediction in robot milling of aircraft skin edges, com-
+prising an FRF-based vibration signal correction method and a
+phase space reconstruction Gramian angular summation ﬁeld
+CNN (PSR-GASF-CNN) roughness monitoring model. The
+vibration signal correction method compensates for vibration
+signals acquired by accelerometer mounted at ﬁxed point using
+frequency response functions (FRFs) of discretized milling seg-
+ments. Time-domain vibration signals are mapped as trajectories
+in the phase space through PSR method, with GASF employed
+to extract features from these trajectories. A CNN classiﬁer
+then performs recognition and classiﬁcation, enabling precise
+prediction of surface roughness. The main contributions of this
+method are summarized as follows.
+1) Enhanced Accuracy and Robustness: Introduce vibration
+signal correction method into roughness prediction to
+prevent accuracy degradation caused by tool path dis-
+placement. Moreover, the GASF method encodes global
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 3 =====
+ZHANG et al.: PHASE SP ACE RECONSTRUCTION-BASED ONLINE ROUGHNESS MONITORING IN ROBOTIC MILLING 1743
+relationships between any two elements in time series.
+This high-dimensional embedding enhances accuracy
+and robustness.
+2) Reconstructed Dynamic Characteristics: The phase
+space is diffeomorphic to the robotic milling system. It
+implies that the dynamic characteristics of the robotic
+milling system are reconstructed through limited ob-
+served vibration signals. This facilitates the CNN to ex-
+tract high-level features.
+3) V alidated Vibration Signal Predictability: The robotic
+milling system is a complex, nonlinear system with lim-
+ited research on the predictability of its vibration signals.
+This article quantitatively demonstrates the predictability
+of vibration signals, thereby supporting the proposed
+prediction model.
+The rest of this article is organized as follows. Section II
+presents the correction method of vibration signals. The PSR-
+GASF-CNN model is described in Section III. Section IV con-
+ducts practical application experiments, constructs the vibration-
+roughness dataset, illustrates the predictability of vibration sig-
+nals, and analyzes the effectiveness of monitoring model. Fi-
+nally, Section V concludes this article.
+II. FRF-B ASED VIBRA TIONSIGNAL CORRECTION METHOD
+During robotic milling of skin parts, ﬁxed position sensors
+cannot adapt to changes in machining points. To overcome this
+challenge, we propose a vibration signal correction method. By
+discretizing the skin edge and separately measuring the FRFs
+between each discretized point and the accelerometer, position-
+dependent correction can be applied to the vibration signals.
+This method facilitates precise monitoring of roughness.
+A. Vibration T ransmission Model
+In the robotic milling of large aircraft skin parts, clamping
+methods such as magnets and vacuum suction cups are often
+used to accommodate the scale and complex curvatures of
+these components. However, these methods do not meet the
+boundary conditions required for accurate theoretical analysis
+in dynamics [34]. To address the difﬁculties in creating precise
+vibration transmission models for roughness monitoring, this
+section introduces a vibration transmission model based on the
+vibration FRF. This approach provides an alternative to theoret-
+ical methods, enabling more reliable acquisition of vibrations
+during robotic milling of aircraft skin parts.
+Fig. 2 presents a vibration transmission model of skin parts
+edge milling. For aircraft skin parts, the stiffness in the x−
+andy− directions are much greater than that in the z-direction.
+However, the clamping method based on magnets and vacuum
+suction cups results in lower clamping stiffness. During actual
+machining processes, signiﬁcant vibrations exist in all three
+directions, x, y, and z. Hence, the transmission model needs
+to consider vibrations in all three directions.
+During the robotic milling process of aircraft skin parts’ edge,
+the position of the milling tool varies over time. However, within
+a sampling period, the movement distance of milling tool is
+much smaller than the size of the workpiece. As a result, during
+Fig. 2. Vibration transmission model of skin parts edge milling.
+each sampling period, the excitation point can be considered
+invariant. Since the position of the acceleration sensor remains
+ﬁxed, the vibration model can be simpliﬁed. This model can
+be transformed into a three-degree-of-freedom vibration model
+with a single excitation point and a single response point. The
+system dynamic equation of the model is calculated as
+M¨q(t)+ C˙q(t)+ Kq(t)= F(t) (1)
+where M, C, and K are, respectively, the mass, damping, and
+stiffness matrices of the system. q(t)=[ x(t) y(t) z(t)]
+T
+and F(t)=[ fx(t) fy(t) fz(t)]
+T
+represents the displacement
+response matrix and the excitation matrix in the time domain.
+Perform Fourier transform on (1) to obtain
+(
+−ω2M+ωjC+ K
+)
+q(ω)= F(ω) (2)
+where q(ω) and F(ω) are the Fourier transform expressions of
+q(t) and F(t), respectively.
+Deﬁne H(ω)=( −ω2M+ωjC+ K)−1 as the displacement
+FRF of the system. Then, (2) can be rewritten as
+q(ω)= H(ω)F(ω). (3)
+The expanded form of the H(ω) matrix is as follows:
+H(ω)=
+⎡
+⎣
+Hxx(ω) Hxy(ω) Hxz(ω)
+Hyx(ω) Hyy(ω) Hyz(ω)
+Hzx(ω) Hzy(ω) Hzz(ω)
+⎤
+⎦ (4)
+where the diagonal elements represent the direct FRF of the
+dynamic system, and the OFF-diagonal elements represent the
+cross-FRF. Due to the orthogonality of x, y, and z coordinates,
+the direct FRF are generally much larger than the cross-FRF.
+Thus, H(ω) can be approximated as a diagonal matrix in normal
+circumstances. However, in actual modal test, we found that the
+cross-FRF is too obvious to ignore. This means that nonlinearity
+caused by magnetic chucks clamping methods makes H(ω) no
+longer be a diagonal matrix.
+B. Position-Dependent Correction
+During the milling process of skin edges, the position-
+dependent correction method is crucial for reducing the inﬂu-
+ence of milling position variations on model prediction accuracy.
+Although the workpiece and the clamping system exhibit inher-
+ent nonlinearities, their approximate continuity is maintained.
+This means, by discretizing the machining area and conducting
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 4 =====
+1744 IEEE/ASME TRANSACTIONS ON MECHA TRONICS, VOL. 31, NO. 2, APRIL 2026
+Fig. 3. Discrete spatial model of aircraft skin parts.
+modal impact tests on discrete points, the FRF of the entire
+machining area of the skin parts can be approximated.
+Fig. 3 presents a discrete spatial model of skin parts. When a
+machining tool feeds along xt-direction, (1) can be rewritten
+Mk ¨q(t)+ Ck ˙q(t)+ Kkq(t)= Fk(t) (5)
+where k = 1, 2,...,K represents the discrete points along the
+feed direction. Equation (3) can be rewritten as
+q(ω)= Hk(ω)Fk(ω). (6)
+To determine the discrete points, the real part HR
+ij(ω) and
+imaginary part HI
+ij(ω) of H(ω) are used to identify the system
+modal frequency and modal damping, respectively, as follows:
+Hij(ω)= HR
+ij(ω)+ iHI
+ij(ω) (7)
+where Hij(ω) represents the FRF of excitation at ith degree of
+freedom (DOF) and response at jth DOF.
+The modal frequency ωm of the system can be determined as
+dHI(ω)
+dω
+⏐⏐⏐⏐
+ω=ωm
+= 0. (8)
+The modal damping ξm of the system can be determined by
+the following equation:
+ξm = |ωa −ωb|
+ωm
+(9)
+where ωa andωb satisfy the following equation:
+dHR(ω)
+dω
+⏐⏐⏐⏐
+ω=ωa,ωb
+= 0. (10)
+Therefore, discrete points can be determined by limiting the
+changes in modal frequency and modal damping
+ωk
+m −ωk+1
+m
+ωkm
+≤ εo r ξk
+m −ξk+1
+m
+ξkm
+≤ ε (11)
+whereε denotes the variation rate of modal parameters between
+adjacent discrete points. In practical implementations, it is typ-
+ically assigned a value of 0.1.
+Deﬁne the length of adjacent discrete points is Δk
+Δk = xk+1 −xk. (12)
+H(ω) of the skin parts is given by the following equation:
+H(ω)|xt =
+⎧
+⎪⎪⎨
+⎪⎪⎩
+H1(ω),xt ∈ [0,Δ1)
+Hk(ω),xt ∈
+[∑ k−1
+1 Δi, ∑ k
+1 Δi
+)
+HK(ω),xt ∈ [L−ΔK−1,L]
+(13)
+wherext denotes the coordinates along feed directions, starting
+from the initial cutting position of aircraft skin parts, as Fig. 2.
+L denotes the entire length of milling area of skin parts.
+Accelerometers are often used in standard modal impact tests,
+where the measured results are acceleration FRF Ha(ω)
+a(ω)= −ω2q(ω)= Ha(ω)F(ω) (14)
+where a(ω) is the Fourier transform expression of ¨q(t).C o m -
+bining (3) and (14), the relationship between acceleration FRF
+Ha(ω) and displacement FRF H(ω) is shown as follows:
+Ha(ω)= −ω2H(ω). (15)
+Due to the nonlinearity caused by the clamping methods
+mentioned earlier, (15) can no longer be regarded as a diagonal
+matrix, and it is difﬁcult to prove its invertibility. Therefore, the
+Moore–Penrose pseudoinverse is used to obtain the least squares
+estimation of the excitation signals
+F(ω)= Ha(ω)+a(ω) (16)
+where Ha(ω)+ is the Moore–Penrose pseudoinverse of Ha(ω).
+The time-domain excitation signals at any position during the
+edge milling process can be obtained as
+F(t)= F−1 {F(ω)} (17)
+whereF−1{/squaresmallsolid} is the inverse Fourier transform.
+So far, the vibration signals acquired at a ﬁxed position have
+converted into the excitation signals at the actual machining area,
+completing the correction of the vibration signal.
+III. O NLINE ROUGHNESS MONITORING MODEL
+Due to the diffeomorphism, phase space can more directly
+present the nonlinear dynamic characteristics of robotic machin-
+ing systems compared to time and frequency domains, which is
+beneﬁcial for extracting features with high identiﬁcation [35].
+Therefore, establishing a roughness monitoring model based
+on phase space trajectory is crucial to enhance the predictive
+performance of the model.
+A. Phase Space Reconstruction
+The robot-tool-workpiece system is a deterministic complex
+nonlinear dynamic system, where{f(1),f (2),...,f (n)} repre-
+sents a set of observed values. The variablen denotes the number
+of vibration sampling points. In this article, it is the excitation
+sequence obtained in Section II-B. The time-domain signal is
+shown in Fig. 4(a).
+Let m be the embedding dimension and τ be the delay time.
+A m-dimension phase space vector si can be constructed as
+si =[ f(i),f (i+τ),··· ,f (i+(m− 1)τ)]T. (18)
+The time series can be transformed into the phase space S
+S =
+{
+s1, s2,··· , sn−(m−1)τ
+}
+. (19)
+Taken’s theorem proves that by selecting appropriate embed-
+ding dimension m and delay time τ , the reconstructed phase
+space can be diffeomorphic to the original dynamic system.
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 5 =====
+ZHANG et al.: PHASE SP ACE RECONSTRUCTION-BASED ONLINE ROUGHNESS MONITORING IN ROBOTIC MILLING 1745
+Fig. 4. Vibration signal of robotic milling. (a) Time domain representa-
+tion. (b) Phase space trajectory .
+Since the dynamic system and this phase space are topolog-
+ically consistent, it is possible to predict the behavior of the
+robot-tool-workpiece system through phase space.
+Deﬁne two time series P and Q as
+P = {p1,p 2,...,p n} = {f(1),f (2),··· ,f (n)}
+Q = {q1,q 2,...,q n} = {f(1+τ),f (2+τ),··· ,f (n+τ)}
+(20)
+where P represents a time series, andQ is the time series of delay
+time τ . So, mutual information of P and Q is
+I(P,Q)= H(Q)+ H(P)−H(Q,P )
+=
+∑
+i
+∑
+j
+Ppq(pi,qj)log2
+Ppq(pi,qj)
+Pp(pi)Pq(qj) (21)
+where H(Q) and H(P) represent the information entropy of P
+and Q, respectively, and H(Q,P ) is joint entropy of P and Q.
+AsI(P,Q) increases, so does the correlation strength betweenP
+and Q, and conversely. Fraser and Swinney[36] believed that the
+selection of delay time should minimize correlation. Therefore,
+we select the optimal delay time τs, which minimize
+τs =a r gm i n{I(P,Q): 1 ≤ τ ≤ τmax} (22)
+where τmax is the maximum value of τ , to ensure that adjacent
+points in the phase space are low related.
+Assuming sm
+i is a point in the m-dimensional phase space S,
+and one of the nearest neighbors of sm
+i is sm
+η(i)
+η(i)=argmin
+{‖‖sm
+i −sm
+j
+‖‖: j= 1, 2,...,n −(m−1)τs,j ⁄= i
+}
+.
+(23)
+Using Euclidean distance to measure the distance between
+two phase points
+Rm(i)=
+‖‖‖sm
+i − sm
+η(i)
+‖‖‖, sm
+i ∈ Sm, sm
+η(i) ∈ Sm. (24)
+When the dimension of the phase space increases from m to
+m+ 1, the distance between points sm+1
+i and sm+1
+η(i) is
+Rm+1(i)=
+‖‖‖sm+1
+i − sm+1
+η(i)
+‖‖‖, sm+1
+i ∈ Sm+1, sm+1
+η(i) ∈ Sm+1.
+(25)
+Deﬁne the distance ratio between siand sη(i) in different
+dimensional spaces as
+a(i,m)= Rm+1(i)
+Rm(i) ,i = 1, 2,...,n −(m− 1)τs. (26)
+Fig. 5. Basic principle of GASF method.
+The distance ratio within entire phase space S is expressed as
+E(m)= 1
+n−mτs
+n−mτs∑
+i=1
+a(i,m). (27)
+Clearly,E(m) is dependent only on the dimension m. Deﬁne
+E1(m)= E(m+ 1)
+E(m) . (28)
+For a deterministic system, when the embedding dimension is
+greater than a speciﬁc valuems, the phase space structure is fully
+opened, which can fully reﬂect the system attractor [37]. That
+means,E1(m) will not change afterm is greater than the speciﬁc
+valuems. Generally, we always choosems as the optimal system
+embedding dimension
+ms =m i n
+{
+m : dE1(m)
+dm = 0
+}
+. (29)
+In actual processing, there is random noise in the signal, and
+E1(m) often is not strictly unchanged. Therefore, assuming a
+small quantity δ, stop the iteration when E1(m) is less than δ,
+and adjust the value of δ according to the actual noise situation
+ms =m i n
+{
+m :
+⏐⏐⏐⏐
+dE1(m)
+dm
+⏐⏐⏐⏐≤ δ,δ ≪ 1
+}
+. (30)
+B. PSR-GASF-CNN Roughness Prediction Model
+The GASF transformation provides an effective method for
+converting time series into 2-D feature matrix, enabling feature
+extraction between any two points in the original time series.
+Leveraging CNNs’ powerful capability in extracting features
+from 2-D matrix, GASF facilitates the establishment of mapping
+relationships between vibration signals and surface roughness.
+The core of GASF lies in converting sequences into angular
+representations
+~si =c o sθi = si · s0
+|si|| s0| (31)
+where si is an element within the reconstructed phase space tra-
+jectory S, s0 represents a reference vector in phase space, and ~si
+is an element within angle series ~S = {~s1, ~s2,··· , ~sn−(m−1)τ}.
+In general, the reference vector s0 can be chosen arbitrarily.
+The angle mapping based on different reference vector s0 is
+essentially the same, only providing various forms of feature
+representation. Fig. 5 demonstrates the image encoding process
+of vector sequences using GASF.
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 6 =====
+1746 IEEE/ASME TRANSACTIONS ON MECHA TRONICS, VOL. 31, NO. 2, APRIL 2026
+Fig. 6. Architecture of roughness monitoring method.
+It is noteworthy that the original GASF transformation was
+designed for scalar time series, using the ratio of sampled
+values to the maximum value as input. This approach cannot
+be directly applied to vector sequences (phase space trajec-
+tories). Therefore, we implement a rational generalization by
+adopting the inner product between phase space vectors and
+reference vectors as input, thereby extending the applicability of
+GASF.
+After converting the vector sequences into angle series ~S,t h e
+GASF matrix is computed by calculating the cosine of the sum
+between the angles
+GASF =[ c o s (θi +θj)] (32)
+where i, j = 1, 2, 3, …, n−(m− 1)τ , respectively.
+Given the computationally intensive nature of trigonometric
+functions, to enhance the calculation efﬁciency, the above equa-
+tions are transformed into a matrix operation form
+GASF =
+[
+~si~sj −
+√
+1− ~s2
+i
+√
+1− ~s2
+j
+]
+= ~ST · ~S −
+√
+I −( ~ST)
+2
+·
+√
+I − ~S2. (33)
+The texture and shape features displayed by the GASF matrix
+represent the distribution of phase space points and can reﬂect
+the nonlinear characteristics of the machining system. Using
+convolutional neural networks to extract features from the GASF
+matrix and ﬁtting the nonlinear relationship between the vibra-
+tion signals and robotic milling surface roughness.
+By combining the vibration signal correction and phase space
+feature extraction, the proposed roughness monitoring method
+can be described in Fig. 6. It can obtain the position-dependent
+FRF of the workpiece through ofﬂine impulse test. Meanwhile,
+complete the training of the CNN classiﬁer through a dataset
+constructed by ofﬂine experiments. During online monitoring,
+the vibration signal ¨q(t) and the real-time cutting position xt of
+the workpiece are obtained through the acceleration sensor and
+the robot controller, respectively. According to (17), calculate
+the compensated vibration excitation signal F(t) and perform
+phase space reconstruction to obtain the phase space trajectory
+S. According to (33), calculate the GASF matrix and input it
+(a)
+(b)
+(c)
+Fig. 7. Practical milling experiment of skin parts. (a) Robotic milling
+system. (b) Vibration signal acquisition. (c) Roughness measurement.
+into the CNN classiﬁer to achieve surface roughness online
+monitoring.
+IV . MODEL TRAINING AND PRACTICAL EXPERIMENT
+This section outlines the practical experimental setup de-
+signed to construct the vibration-roughness dataset and train
+the roughness monitoring model. The predictability of vibration
+signals is quantitatively demonstrated. Compared to similar
+methods, the proposed method in this article has high accuracy
+and strong robustness. Online monitoring experiment is con-
+ducted to demonstrate the practicality of the prediction model.
+All the program codes used in the experiments described in the
+following (unless otherwise speciﬁed) are written in MA TLAB
+R2023a and run on a computer with an Intel i7-8750H CPU, a
+16GB DDR4 RAM and a NVIDIA GTX1060 GPU.
+A. Dataset Construction Based on Practical Experiment
+1) Practical Milling Experiment Setup: The surface rough-
+ness prediction model will be trained based on a dataset con-
+structed from practical skin parts milling experiment. The se-
+lected workpiece for this article is a skin part measuring 200 ×
+200× 2 mm, made from 6061 aluminum alloy. Fig.7 provides an
+overview of the experimental setup, featuring an ABB IRB-6660
+robot for the milling platform. The end effector is an EBLTS
+TS120F high-speed electric spindle. Acceleration signals, which
+are monitored using a KSI-138M100 triaxial accelerometer, are
+acquired by commercial software DewesoftX and SIRIUS X
+data acquisition module. The workpiece is secured to the vise
+ﬁxture using strong magnets, with an overhang length of 20 mm.
+For different experimental groups, the position of the strong
+magnets is kept constant to minimize errors. The accelerometer
+is mounted at the geometric center of the skin parts using a strong
+magnetic base. Edge milling is performed using a three-ﬂute
+solid carbide ﬂat end mill with a helix angle of 38° and a diameter
+of 10 mm.
+The arithmetic average roughness Ra, which is in accordance
+with ISO 21920-2:2021, is employed as the quantitative metric
+for evaluating surface roughness. Surface roughness is measured
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 7 =====
+ZHANG et al.: PHASE SP ACE RECONSTRUCTION-BASED ONLINE ROUGHNESS MONITORING IN ROBOTIC MILLING 1747
+T ABLE I
+PEARSON CORRELA TIONANAL YSIS
+Fig. 8. Stability lobe diagram of robotic machining system at different
+pose. (a) At the start of the machining trajectory . (b) At the middle of the
+machining trajectory . (c) At the end of the machining trajectory .
+using a contact-type surface roughness tester (TR200). To avoid
+inﬂuences of burrs from machining, measurements are taken
+along the side midline, perpendicular to thickness direction.
+The experimental setup for roughness measurement is shown
+in Fig. 7(c) The roughness measurement methodology follows
+the international standard ISO 21920-3:2021.
+2) Robotic Milling Dataset Construction: Before conducting
+formal experiments, preliminary research is carried out on the
+hardware platform shown in Fig. 7. In pre-experiments, multi-
+parameter combinations are implemented: spindle speed is set at
+three levels (4000 r/min, 6000 r/min, and 8000 r/min), feed rate
+is divided into eight gradients from 1 mm/s to 8 mm/s (1 mm/s
+intervals) and radial depth of cut (RDC) is ﬁxed at 1 mm. The
+axial depth of cut (ADC) is ﬁxed at 2.0 mm, as dictated by
+the geometry of the skin parts. To enhance data reliability, 10
+discrete measurement points are selected along the edge region
+of the skin, and arithmetic mean of surface roughness under each
+parameter combination is calculated.
+As shown in Table I, by establishing a Pearson correlation
+model between feed per tooth and average surface roughness,
+a signiﬁcant positive correlation is observed (two-tailed test
+signiﬁcance level p = 0.003), with the probability of rejecting
+the null hypothesis below 0.3%. Analysis reveals that increas-
+ing spindle speed effectively reduces feed per tooth, thereby
+improving machining surface quality. Based on this conclusion,
+spindle speed is ﬁxed at 8000 r/min for the formal experimental
+phase. As delineated in Table II, feed rate and the RDC are
+selected as independent variables for constructing the robotic
+milling dataset. The ADC is ﬁxed at 2.0 mm (dictated by the
+geometry of skin parts). A full factorial design of experiments
+is implemented to deﬁne feed rate and RDC levels.
+To validate the rationality of the dataset design, chatter stabil-
+ity analysis [38] is performed. Three robot postures are selected
+at the start, middle, and end of the machining trajectory, and their
+corresponding stability lobe diagrams are shown in Fig.8(a)–(c).
+The horizontal axis denotes the spindle speed, while the vertical
+axis represents the ADC. Stability lobes corresponding to differ-
+ent RDC are distinguished by color-coded curves, with explicit
+T ABLE II
+PROCESS PARAMETERS OF PRACTICAL MILLING EXPERIMENT
+T ABLE III
+SURFACE ROUGHNESS CLASSIFICA TION
+annotations provided in the legend. Practical experimental pa-
+rameters are the blue markers, as the spindle speed and ADC are
+ﬁxed at 8000 r/min and 2.0 mm, respectively. In summary, all
+machining parameters in the dataset are positioned within stable
+lobes, which ensures machining stability during the practical
+experiment.
+The parameter ranges cover typical values encountered in
+aircraft skin milling applications. For each machining param-
+eter, measure surface roughness at 60 discrete points along the
+edge of the skin workpiece and acquire corresponding vibration
+signals to construct a vibration-roughness dataset which includes
+3600 samples on 3 channels. The surface roughness values are
+classiﬁed into ﬁve discrete categories using the R10 preferred
+number series (per ISO 3:1973) combined with surface rough-
+ness gradations deﬁned in ISO 21920, as tabulated in Table III.
+B. T raining of Surface Roughness Prediction Model
+1) Vibration Signal Correction: The modal impulse test via
+impact hammer excitation enables the determination of the
+FRF at different positions along the edge of skin parts. Fig. 9
+illustrates the setup conﬁguration for the modal impulse test.
+A KSI-728A002 medium-sized impulse hammer is used in the
+experiments, with a sensitivity of 2.52 mV/N and an impact
+force range of 0 to 2 kN. The hammer head has a mass of 100 g
+and a diameter of 5 mm. Each position is struck three times,
+and the results are averaged. The FRF data is acquired using
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 8 =====
+1748 IEEE/ASME TRANSACTIONS ON MECHA TRONICS, VOL. 31, NO. 2, APRIL 2026
+Fig. 9. Modal impulse test setup. (a) Model test experiment.
+(b) Discretization of the skin edge.
+Fig. 10. Vibration signal correction. (a) Variation rates of the ﬁrst-order
+modal frequency across adjacent points. (b) Acquired vibration acceler-
+ation signal. (c) Compensated vibration force signal.
+the commercial software DewesoftX and the SIRIUS X data
+acquisition module.
+During the milling process, due to the cutting action of the
+milling cutter, the skin part forms a notch that advances along
+the feed direction. The cutting process of the cutter on the
+workpiece occurs at this notch, thereby applying milling forces
+to the workpiece. As shown in Fig. 9(b), a dedicated notch is
+machined at the skin edge to enable triaxial excitation (X, Y ,
+and Z directions) using an impact hammer at this location. This
+conﬁguration better simulates practical milling conditions.
+The accelerometer is positioned at the geometric center of the
+skin component, consistent with the machining experiments. A
+uniform discretization method is employed, dividing the skin
+edge into 11 equally spaced points along the feed direction,
+with a spacing interval of 20 mm between adjacent points.
+Using the measured FRF of the workpiece, adjacent points’
+ﬁrst-order modal frequency variation rates in each direction are
+shown in Fig. 10(a). In the terminal and central regions of skin
+parts, higher modal frequency variation rates are observed due to
+increased distance from magnets. Conversely, near the magnets
+(e.g., around point 3 and 8), enhanced stability corresponds
+to lower variation rates. The skin exhibits sufﬁcient continuity
+such that even with the simple uniform discretization method,
+the modal frequency variation rate between any adjacent points
+remains below 0.1, satisfying (11) withε s e tt o0 . 1 .T h ed i s c r e t e
+FRF approximately represent the full-edge FRF of the skin
+within the allowable 0.1 tolerance.
+To validate the effectiveness of the vibration signal correc-
+tion model, a vibration signal segment shown in Fig. 10(b) is
+Fig. 11. Selection of critical parameters. (a) Mutual information. (b)
+Distance ratio. (c) Derivative of distance ratio. (d) Delay time τ s and
+embedding dimension m.
+selected, where process parameters are annotated in the ﬁgure,
+corresponding to the machining segment between point 8 and
+point 10. As the cutting tool gradually moves away from the
+accelerometer, the vibration amplitude signiﬁcantly decreases.
+As shown in Fig. 10(c), the vibration amplitudes at different po-
+sitions become nearly consistent after correction, demonstrating
+the effectiveness of correction.
+2) Phase Space Reconstruction and Predictability Proof:
+The preset maximum delay timeτmax and maximum embedding
+dimensionmmax is set to 30 and 50, respectively. According to
+(21), traverse the range of τ values and calculate the mutual
+information of X, Y , and Z channel signals. The calculation
+results are shown in Fig. 11(a). The curve initially decreases
+and then increases, exhibiting a local minimum around τ = 5.
+According to (23)–(28), calculate the distance ratio E1 for
+the signals of channels X, Y , and Z, as shown in Fig. 11(b).
+E1 increases with the increase of m, but the growth rate grad-
+ually slows down and remains unchanged. Taking δ as 0.005,
+the derivative dE1/dm is calculated in Fig. 11(c). As can be
+clearly seen from the ﬁgure, when the embedding dimension
+m is greater than 15, E1 remains essentially constant, and the
+dE1/dm is less than δ, which meets the requirement.
+By selecting multiple sets of signals from each combination of
+processing parameters, we can calculate the optimal delay time
+τs and optimal embedding dimension ms for the three channels
+according to (22) and (30), respectively. The mean and standard
+deviation of these calculations are shown in Fig. 11(d). It can
+be observed that τs and ms of the data from the three channels
+are similar. This indicates that the three channels exhibit similar
+nonlinear characteristics. Therefore, set the optimal delay time
+τs as 5 and the optimal embedding dimension ms as 15.
+Selecting multiple sets of signals from each machining param-
+eter combination, the largest Lyapunov exponent (LLE) and the
+Kolmogorov entropy (KE) of the X, Y , and Z channel signals are
+calculated. The mean and standard deviation of LLE and KE,
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 9 =====
+ZHANG et al.: PHASE SP ACE RECONSTRUCTION-BASED ONLINE ROUGHNESS MONITORING IN ROBOTIC MILLING 1749
+Fig. 12. Parameters for predictability analysis of X, Y , and Z channel
+signals. (a) Largest Lyapunov exponent. (b) Kolmogorov entropy .
+(a) (b)
+Fig. 13. T raining results of roughness prediction model. (a) Confusion
+matrix chart. (b) Visualization of train set by PCA.
+as shown in Fig. 12. LLE represents the average exponential
+rate at which the phase space trajectory of a nonlinear system
+converges or diverges over time. The LLE values of signals from
+all three channels are negative and close to zero, indicating that
+the robotic milling system is asymptotically stable. This stability
+implies that the phase space trajectory will ultimately converge
+to an attractor or ﬁxed point. Meanwhile, the positive KE of
+the signal indicates the presence of some degree of chaos in the
+system, but the KE being close to zero suggests that the level of
+chaos is very low.
+In summary, the robot-tool-workpiece system exhibits low
+chaos, making its dynamic behavior predictable over long peri-
+ods. The acquired signals can be used to forecast the system’s
+future behavior. The phase space trajectories of the signals form
+ordered closed loops, and the features of these trajectories can
+be identiﬁed using GASF-CNN, thereby enabling the prediction
+of surface roughness. This validates the predictability of the
+proposed roughness prediction model.
+3) T raining of Roughness Prediction Model: After feature
+extraction, the ﬁnal dataset consists of 3600 samples. The train-
+ing set and test set are divided in an 8:2 ratio, with 2880 samples
+in the training set and 720 samples in the test set. The prediction
+model is trained on a computer with an Intel i7-9700 CPU with
+3.00 GHz, a 64GB DDR4 RAM, and a NVIDIA RTX3090 GPU
+with 24 GB VRAM. To improve the prediction model’s accuracy,
+Bayesian optimization is used to ﬁne-tune hyperparameters like
+the initial learning rate, learning rate drop factor and so on.
+After 20 iterations, the trained neural network has a classiﬁcation
+accuracy of 96.7% for the test set.
+T ABLE IV
+PREDICTION RESUL TS OF COMP ARISONMODELS
+The confusion matrix is shown in Fig. 13(a). Specimens are
+predominantly clustered within the Ra 1.6 μmt oR a3 . 2 μm
+range (accounting for 88% of the dataset), exhibiting limited
+misclassiﬁcations (error rate: 3.3%), indicating that they have
+similar features. There are fewer samples smaller than Ra 1.6μm
+and larger than Ra 3.2 μm, and the classiﬁcation accuracy of
+these samples is nearly 100%, indicating that the roughness
+prediction model performs well in handling extreme categories.
+Visualize the classiﬁcation performance of the training set
+using the PCA algorithm, as shown in Fig. 13(b). The model
+performs well in most categories, with samples forming distinct
+clusters in the 2-D space. Although some overlap exists between
+different clusters, relatively clear boundaries remain observ-
+able. This aligns with practical observations that samples with
+marginally different roughness values exhibit similar vibration
+signal characteristics. The limited differentiation between Class
+1 and Class 2 samples stems from milling process constraints:
+most samples below Ra1.6 cluster near Ra1.6, with only a
+minimal number of samples falling below Ra1.3.
+To verify the robustness of the model, Gaussian noise is intro-
+duced into the experimental data and SNR is used to represent
+the strength of the noise
+SNR = 10lg
+(Psignal
+Pnoise
+)
+(34)
+wherePsignal andPnoise represent the power of signal and noise,
+respectively. A lower SNR indicates a higher level of noise.
+For the proposed PSR-GASF-CNN model in this study, we
+conducted systematic ablation studies involving three archi-
+tectural variants: PSR-CNN, GASF-CNN, and CNN baseline.
+Three SOTA prediction models (Zhao’s model[29], Lu’s model
+[31], and He’s model[33]) were included for comparative analy-
+sis. All seven models were trained using identical methodologies
+on the dataset constructed in this study, with their prediction
+performance quantitatively compared in Table IV. The PSR-
+GASF-CNN model achieves a high prediction accuracy of over
+96.7%. This method exhibits strong robustness with minimal
+susceptibility to noise interference. Even in strong noise environ-
+ments with a SNR of 0 dB, the model retains 90% classiﬁcation
+accuracy. The high precision and strong robustness of the model
+can be explained by the following two aspects.
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 10 =====
+1750 IEEE/ASME TRANSACTIONS ON MECHA TRONICS, VOL. 31, NO. 2, APRIL 2026
+(a) (b)
+Fig. 14. Practical online monitoring experiment. (a) Experiment setup.
+(b) Online roughness monitoring program.
+1) Based on Takens’ embedding theorem, the phase space
+and the robot milling system are diffeomorphic. It implies
+that the dynamic characteristics of the robotic milling
+system are reconstructed through vibration signals. This
+facilitates the CNN to extract high-level features, and
+improves the accuracy and robustness of the predictive
+model.
+2) The GASF method not only captures local variations
+between adjacent elements but also encodes global tem-
+poral relationships between any two elements in the time
+series. Such high-dimensional embedding enhances clas-
+siﬁcation accuracy and demonstrates strong immunity to
+random Gaussian noise, which is commonly encountered
+in engineering applications.
+C. Online Monitoring Experiment
+To validate the applicability of the proposed roughness mon-
+itoring model, a practical online monitoring experiment is con-
+ducted using the robotic machining system described in Sec-
+tion IV -A. The use of a variable feed rate machining strategy
+allows for the generation of different surface roughness levels,
+which helps analyze the sensitivity of the model to roughness
+changes. The RDC and ADC are ﬁxed at 2.0 mm. In this strategy,
+the feed rate for the A-B-C segment is set to 3 mm/s, while for
+the C-D-E segment, it is set to 1 mm/s, as shown in Fig. 14(a).
+The edge regions (i.e., before point A and after point E) are
+excluded from the analysis due to structural instability.
+By applying the prediction model trained in the previous
+section, we are able to perform online monitoring of surface
+roughness of the skin parts. The predicted results are shown
+in Fig. 14(b), with points A to E marked. In the predicted
+results, the B-C segment is located between two magnets, where
+the clamping stiffness is higher, resulting in lower roughness
+compared to the A-B segment. At point C, the model accurately
+responds to the roughness changes caused by the abrupt feed
+rate change. Point D is closer to the magnet, where the clamping
+stiffness is optimal, and as a result, this point exhibits the best
+machining quality.
+At each feature point, ten discrete points are selected in the
+vicinity, and their surface roughness is measured. The results
+indicate that the model has a higher prediction accuracy in
+the low-speed segments (nearly 100%) and a lower accuracy
+in the variable-speed machining segments (only 60%). The
+overall prediction accuracy is 90%, lower than that of the
+test set. This discrepancy can be attributed to the randomness
+and instability inherent in the actual machining process, which
+affects the model’s predictive performance. Overall, the pro-
+posed model provides real-time surface roughness monitoring,
+promptly identiﬁes robotic milling anomalies of aircraft skin
+edge.
+V. C ONCLUSION
+We propose a PSR-GASF-CNN-based roughness monitoring
+model for online surface roughness assessment in aircraft skin
+edge milling. This model employs position-dependent FRFs to
+correct vibration signals, effectively suppressing the inﬂuence
+of tool feed motion along the workpiece. The methodology
+reconstructs vibration signals into phase space through delay
+embedding. When integrated with CNN classiﬁers, the global
+relationships of phase space trajectories are encoded via GASF,
+achieving over 96.7% accuracy on test sets. The model demon-
+strates strong robustness, maintaining above 90% accuracy in
+high-noise environments. Additionally, the predictability of vi-
+bration signals is validated through LLE and KE analyses. While
+current model focuses on rectangular planar workpieces, and
+future research will extend this framework to free-form surface
+workpieces. Overall, this solution successfully addresses online
+roughness monitoring requirements of aircraft skins and offers
+substantially guidance for industrial implementation.
+REFERENCES
+[1] C. Jiang et al., “A novel dual-robot accurate calibration method using
+convex optimization and lie derivative,” IEEE Trans. Robot. , vol. 40,
+pp. 960–977, Jan. 2024, doi: 10.1109/TRO.2023. 3344025.
+[2] G. Wang, W. Li, C. Jiang, and H. Ding, “Machining allowance calculation
+for robotic edge milling an aircraft skin considering the deformation
+of assembly process,” IEEE/ASME Trans. Mechatron. , vol. 27, no. 5,
+pp. 3350–3361, Oct. 2022, doi: 10.1109/TMECH.2021.3131309.
+[3] Q. Peng, W. Li, C. Jiang, Y . Cheng, D. Wang, and W. Xu, “A novel
+path error compensation method for robotic milling by using hybrid tem-
+poral network,” IEEE/ASME Trans. Mechatron. , doi: 10.1109/TMECH.
+2024.34794 10.
+[4] C. Moeller et al., “Real time pose control of an industrial robotic system
+for machining of large scale components in aerospace industry using laser
+tracker system,”SAE Int. J. Aerosp., vol. 10, no. 2, pp. 100–108, Sep. 2017,
+doi: 10.4271/2017-01-2165.
+[5] A. V erl et al., “Robots in machining,” CIRP Ann. , vol. 68, pp. 799–822,
+Jun. 2019, doi: 10.1016/j.cirp.2019.05.009.
+[6] S. C. Du, D. L. Huang, and H. Wang, “An adaptive support vec-
+tor machine-based workpiece surface classiﬁcation system using high-
+deﬁnition metrology,” IEEE Trans. Instrum. Meas. , vol. 64, no. 10,
+pp. 2590–2604, Oct. 2015, doi: 10.1109/TIM.2015.2418684.
+[7] P . Xu et al., “Inﬂuence of process parameters and robot postures on surface
+quality in robotic machining,”Int. J. Adv. Manuf. Technol., vol. 124, no. 7/8,
+pp. 2545–2561, Feb. 2023, doi: 10.1007/s00170-022-10640-2.
+[8] Y . Hao and Y . Liu, “Analysis of milling surface roughness prediction for
+thin-walled parts with curved surface,”Int. J. Adv. Manuf. Technol., vol. 93,
+no. 5–8, pp. 2289–2297, Nov. 2017, doi: 10.1007/s00170-017-0615-4.
+[9] D. V akondios et al., “Inﬂuence of milling strategy on the sur-
+face roughness in ball end milling of the aluminum alloy Al7075-
+T6,” Measurement, vol. 45, no. 6, pp. 1480–1488, Jul. 2012,
+doi: 10.1016/j.measurement.2012.03.001.
+[10] W. Wang et al., “A State-of-the-art review on robotic milling of complex
+parts with high efﬁciency and precision,” Robot. Comput.-Integr . Manuf.,
+vol. 79, Aug. 2022, Art. no. 102436, doi: 10.1016/j. rcim.2022.102436.
+[11] G. Onwuka and K. Abou-El-Hossein, “Surface roughness in ultra-high pre-
+cision grinding of BK7,”Procedia CIRP, vol. 45, pp. 143–146, Jun. 2016,
+doi: 10.1016/j.procir.2016.03.023.
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 11 =====
+ZHANG et al.: PHASE SP ACE RECONSTRUCTION-BASED ONLINE ROUGHNESS MONITORING IN ROBOTIC MILLING 1751
+[12] A. Sio-Sever et al., “Non-invasive estimation of machining parameters dur-
+ing end-milling operations based on acoustic emission,” Sensors, vol. 20,
+no. 18, Sep. 2020, Art. no. 5326, doi: 10.3390/s20185326.
+[13] H. Shi, J. Shi, Y . Y ang, S. Tang, C. Su, and L. Liu, “Spatial vibration and
+displacement measurement through single-point continuous and interval
+scanning laser Doppler vibrometer,” IEEE Trans. Instrum. Meas., vol. 72,
+Jan. 2023, Art.no. 7001011, doi: 10.1109/TIM.2022.3225055.
+[14] Y . Qu, T. Wang, and Z. Zhu, “Vision-aided laser Doppler vibrometry for re-
+mote automatic voice detection,”IEEE/ASME Trans. Mechatron., vol. 16,
+no. 6, pp. 1110–1119, Dec. 2011, doi: 10.1109/TMECH. 2010.2077678.
+[15] L. Su, W. Xu, Y .-P . Wang, and W.-L. Li, “Robust point cloud registration in
+robotic inspection with locally consistent Gaussian mixture model,” IEEE
+Trans. Instrum. Meas., vol. 73, Oct. 2024, Art. no. 5038712, doi: 10.1109
+/TIM.2024. 3480198.
+[16] C. Warren et al., “Comparison of FRF measurements and mode shapes
+determined using optically image based, laser, and accelerometer mea-
+surements,” Mech. Syst. Signal Process. , vol. 25, no. 6, pp. 2191–2202,
+Aug. 2011, doi: 10.1016/j.ymssp. 2011.01.018.
+[17] W. Sun, M. Luo, and D. Zhang, “Machining vibration monitoring based on
+dynamic clamping force measuring in thin-walled components milling,”
+Int. J. Adv. Manuf. Technol., vol. 107, no. 5/6, pp. 2211–2226, Mar. 2020,
+doi: 10.1007/s00170-020-05153-9.
+[18] B. Cardoz et al., “Random forests-based classiﬁcation of tool wear using
+vibration signals and wear area estimation from tool image data,” Int.
+J. Adv. Manuf. Technol. , vol. 126, no. 7/8, pp. 3069–3081, Jun. 2023,
+doi: 10.1007/s00170-023-11173-y.
+[19] Q. Zhu, B. Sun, Y . Zhou, W. Sun, and J. Xiang, “Sample aug-
+mentation for intelligent milling tool wear condition monitoring us-
+ing numerical simulation and generative adversarial network,” IEEE
+Trans. Instrum. Meas. , vol. 70, May 2021, Art. no. 3516610,
+doi: 10.1109/TIM.2021.3077995.
+[20] D. Liu et al., “Position-oriented process monitoring in milling of
+thin-walled parts,” J. Manuf. Syst. , vol. 60, pp. 360–372, Jul. 2021,
+doi: 10.1016/j.jmsy.2021.06.010.
+[21] Z. Y ao et al., “Position dependent vibration evaluation in milling of thin-
+walled part based on single-point monitoring,” Measurement, vol. 171,
+Feb. 2021, Art. no. 108810, doi: 10.1016/j. measurement.2020.108810.
+[22] Z. Y ao et al., “Position-dependent milling process monitoring and sur-
+face roughness prediction for complex thin-walled blade component,”
+Mech. Syst. Signal Process. , vol. 198, Sep. 2023, Art. no. 110439,
+doi: 10.1016/j.ymssp.2023.110439.
+[23] J. Burriel-V alencia, R. Puche-Panadero, J. Martinez-Roman, A. Sapena-
+Bano, and M. Pineda-Sanche, “Short-frequency Fourier transform for
+fault diagnosis of induction machines working in transient regime,” IEEE
+Trans. Instrum. Measuremen , vol. 66, no. 3, pp. 432–440, Mar. 2017,
+doi: 10.1109/TIM.2016.2647458.
+[24] Y . Jin, C. Shan, Y . Wu, Y . Xia, Y . Zhang, and L. Zeng, “Fault diagnosis
+of hydraulic seal wear and internal leakage using wavelets and wavelet
+neural network,” IEEE Trans. Instrum. Measuremen , vol. 68, no. 4,
+pp. 1026–1034, Apr. 2019, doi: 10.1109/TIM.2018.2863418.
+[25] A. Soualhi, K. Medjaher, and N. Zerhouni, “Bearing health monitoring
+based on Hilbert–Huang transform, support vector machine, and regres-
+sion,” IEEE Trans. Instrum. Meas. , vol. 64, no. 1, pp. 52–62, Jan. 2015,
+doi: 10.1109/TIM.2014.2330494.
+[26] S. R. Fahim et al., “Self-attention convolutional neural network with
+time series imaging-based feature extraction for transmission line fault
+detection and classiﬁcation,”Electric Power Syst. Res., vol. 187, Oct. 2020,
+Art. no. 106437, doi: 10.1016/j.epsr.2020.106437.
+[27] W. X. Wang, Y . C. Lai, and C. Grebogi, “Data based iden-
+tiﬁcation and prediction of nonlinear and complex dynam-
+ical systems,” Phys. Rep. , vol. 644, pp. 1–76, Jul. 2016,
+doi: 10.1016/j.physrep.2016.06.004.
+[28] H. Ding, R. X. Gao, A. J. Isaksson, R. G. Landers, T. Parisini, and Y . Y ua,
+“State of AI-based monitoring in smart manufacturing and introduction
+to focused section,” IEEE/ASME Trans. Mechatronic , vol. 25, no. 5,
+pp. 2143–2154, Oct. 2020, doi: 10.1109/TMECH.2020.3022983.
+[29] X. Zhao, H. Lu, W. Y u, B. Tao, and H. Din, “Robotic grinding
+process monitoring by vibration signal based on LSTM method,”
+IEEE Trans. Instrum. Meas. , vol. 71, Oct. 2022, Art. no. 400911,
+doi: 10.1109/TIM.2022.3210978.
+[30] L. Cao, X. M. Zhang, T. Huang, and H. Ding, “Online moni-
+toring machining errors of thin-walled workpiece: A knowledge
+embedded sparse Bayesian regression approach,” IEEE/ASME
+Trans. Mechatronic , vol. 24, no. 3, pp. 1259–1270, Jun. 2019,
+doi: 10.1109/TMECH.2019. 2912195.
+[31] H. Lu, X. Zhao, B. Tao, and Z. Yi, “Online process monitor-
+ing based on vibration-surface quality map for robotic grinding,”
+IEEE/ASME Trans. Mechatronic, vol. 25, no. 6, pp. 2882–2892, Dec. 2020,
+doi: 10.1109/TMECH.2020.2996939.
+[32] S. Li, X. Lin, H. Shi, Y . Shi, and K. Zhu, “Physics-guided deep learn-
+ing method for tool condition monitoring in smart machining system,”
+IEEE/ASME Trans. Mechatron., vol. 29, no. 3, pp. 2327–2337, Jun. 2024,
+doi: 10.1109/TMECH.2023.3311435.
+[33] W. He et al., “Uniﬁed diagnostic and matching framework of fault and
+quality for robotic grinding system,” IEEE Trans. Instrum. Meas., vol. 73,
+Mar. 2024, Art. no. 3513612, doi: 10.1109/TIM.2024. 3376009.
+[34] D. M. Shi, T. Huang, X. M. Zhang, and H. Ding, “Online
+monitoring dynamic characteristics in thin-walled structure milling:
+A physics-constrained Bayesian updating approach,” IEEE/ASME
+Trans. Mechatron. , vol. 28, no. 6, pp. 3422–3433, Dec. 2023,
+doi: 10.1109/TMECH.2023. 3268180.
+[35] Y . Zhao, Z. Huang, and X. Wang, “A review of speciﬁc emitter identi-
+ﬁcation based on phase space reconstruction,” J. Radars, vol. 12, no. 4,
+pp. 713–737, Aug. 2023, doi: 10.12000/JR23057.
+[36] A. M. Fraser and H. L. Swinney, “Independent coordinates for strange
+attractors from mutual information,” Phys. Rev. A , vol. 33, no. 2,
+pp. 1134–1140, Feb. 1986, doi: 10.1103/PhysRevA.33.1134.
+[37] L. Cao, “Practical method for determining the minimum em-
+bedding dimension of a scalar time series,” Physica D, Non-
+linear Phenomena , vol. 110, no. 1/2, pp. 43–50, Dec. 1997,
+doi: 10.1016/S0167-2789(97)00118-8.
+[38] Y . Ding et al., “A full-discretization method for prediction of milling
+stability,”Int. J. Mach. Tools Manufacture, vol. 50, pp. 502–509, Feb. 2010,
+doi: 10.1016/j.ijmachtools.2010.01.003.
+Han-yu Zhang received the B.E. degree in me-
+chanical design, manufacturing, and automation
+in 2022 from Huazhong University of Science
+and T echnology , Wuhan, China, where he is
+currently working toward the Ph.D. degree in
+mechanical engineering.
+His research interests include robotic machin-
+ing and measurement.
+Wei Xu (Member, IEEE) received the B.E. and
+M.Eng. degrees in ﬂuid machinery and engi-
+neering from China University of Mining and
+T echnology , Beijing, China, in 2013 and 2016,
+respectively , and the Ph.D. degree in measure-
+ment engineering from Leibniz University Han-
+nover, Germany , in 2021.
+He is a Lecturer with Huazhong University
+of Science and T echnology , Wuhan, China. His
+research interests include robotic measurement
+and manufacturing.
+Qing-yu Peng received the B.E. degree in ma-
+rine engineering from Wuhan University of T ech-
+nology , Wuhan, China, in 2020. He is currently
+working toward the Ph.D. degree in mechanical
+engineering with Huazhong University of Sci-
+ence and T echnology , Wuhan, China.
+His research interests include robotic machin-
+ing and robotic measurement.
+Dong-fang Wang received the B.E. degree
+in mechanical design, manufacturing, and
+automation from Wuhan University of
+T echnology , Wuhan, China, in 2020. He is
+currently working toward the Ph.D. degree
+in mechanical engineering with Huazhong
+University of Science and T echnology , Wuhan,
+China.
+His research interest includes robotic
+machining.
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 
+===== PAGE 12 =====
+1752 IEEE/ASME TRANSACTIONS ON MECHA TRONICS, VOL. 31, NO. 2, APRIL 2026
+Cheng Jiang received the B.E. degree in me-
+chanical design, manufacturing, and automation
+and the Ph.D. degree in mechatronic engineer-
+ing from Huazhong University of Science and
+T echnology , Wuhan, China, in 2016 and 2024,
+respectively .
+He is currently a Postdoctoral Fellow with the
+Joint T raining Program of HUST and Geely Au-
+tomobile Research Institute. His research inter-
+est includes robot autonomous execution and
+operation.
+Wen-long Li (Member, IEEE) received the
+B.E. degree in mechanical engineering and au-
+tomation from Xi’an JiaoT ong University , Xi’an,
+China, in 2004 and the Ph.D. degree in mecha-
+tronic engineering from Huazhong University
+of Science and T echnology , Wuhan, China, in
+2010.
+He is currently a Professor with Huazhong
+University of Science and T echnology , Wuhan,
+China. His current research interests include
+robotic machining and three-dimensional optical
+measurement.
+Authorized licensed use limited to: Huazhong University of Science and Technology. Downloaded on June 09,2026 at 02:19:57 UTC from IEEE Xplore.  Restrictions apply. 

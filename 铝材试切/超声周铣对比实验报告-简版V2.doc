@@ -1,0 +1,173 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>超声辅助周铣对比实验报告（简版）</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>
+@page { size: A4; margin: 2.2cm 2.2cm; }
+body { font-family: "宋体", SimSun, serif; font-size: 10.5pt; line-height: 1.55; }
+h1 { font-family: "黑体", SimHei, sans-serif; font-size: 17pt; text-align: center; margin: 0 0 4pt 0; }
+.sub { text-align: center; font-size: 9.5pt; color:#555; margin-bottom: 16pt; }
+h2 { font-family: "黑体", SimHei, sans-serif; font-size: 12pt; margin: 16pt 0 6pt 0; border-bottom: 1px solid #999; padding-bottom: 2pt; }
+h3 { font-family: "黑体", SimHei, sans-serif; font-size: 11pt; margin: 12pt 0 5pt 0; }
+table { border-collapse: collapse; width: 100%; margin: 6pt 0 8pt 0; }
+th, td { border: 1px solid #000; padding: 4pt 6pt; font-size: 9.5pt; }
+th { background: #DCE6F1; font-family: "黑体", SimHei, sans-serif; text-align: center; }
+td.c { text-align: center; }
+.cap { text-align: center; font-size: 9pt; color: #444; margin: 2pt 0 10pt 0; }
+.key { border: 1px solid #666; background: #F4F4F4; padding: 8pt 12pt; margin: 8pt 0; }
+.key p { margin: 3pt 0; }
+.warn { border: 1px solid #C00; border-left: 4px solid #C00; background: #FDF2F2; padding: 8pt 12pt; margin: 8pt 0; }
+.warn p { margin: 3pt 0; }
+p { margin: 5pt 0; }
+ul { margin: 4pt 0; padding-left: 20pt; }
+li { margin: 2pt 0; }
+</style>
+</head>
+<body>
+
+<h1>超声辅助周铣对比实验报告</h1>
+<p class="sub">0.5 mm 铝薄板边缘周铣 —— 超声开启 / 关闭对表面粗糙度的影响</p>
+
+<h2>一、实验目的</h2>
+<p>在相同切削参数与装夹条件下，对比纵扭复合超声刀柄开启与关闭时，铝薄板边缘周铣的表面粗糙度 Ra，评估超声振动对表面质量的实际作用。</p>
+
+<h2>二、实验条件</h2>
+
+<table>
+<tr><th style="width:32%">项目</th><th>参数</th></tr>
+<tr><td class="c">刀具</td><td>φ10 四刃立铣刀，ER16 刀柄夹持</td></tr>
+<tr><td class="c">主轴转速</td><td>3000 / 4000 / 5000 / 6000 rpm（四水平）</td></tr>
+<tr><td class="c">进给速度</td><td>5 mm/s（300 mm/min），全程固定</td></tr>
+<tr><td class="c">轴向切深 ap</td><td>1 mm</td></tr>
+<tr><td class="c">径向切宽 ae</td><td>0.5 mm（全板厚）</td></tr>
+<tr><td class="c">加工方式</td><td>周铣（侧刃铣削），顺铣</td></tr>
+<tr><td class="c">超声频率</td><td>20 kHz（自动追频）</td></tr>
+<tr><td class="c">超声振幅</td><td>纵振 10 μm / 扭振 7 μm</td></tr>
+<tr><td class="c">评定指标</td><td>表面粗糙度 Ra（μm），每段测 3 个位置</td></tr>
+</table>
+<p class="cap">表 1　实验条件</p>
+
+<h2>三、实验环境</h2>
+
+<table>
+<tr><th style="width:32%">项目</th><th>配置</th></tr>
+<tr><td class="c">执行机构</td><td>ABB IRB 6660 铸造机器人（含外轴）</td></tr>
+<tr><td class="c">控制系统</td><td>IRC5，RobotWare 6.16.03</td></tr>
+<tr><td class="c">电主轴</td><td>11 kW / 10 N·m，额定 12000 rpm，最高 20000 rpm，液体冷却</td></tr>
+<tr><td class="c">超声刀柄</td><td>BT30-ER16-EC 纵扭复合超声刀柄</td></tr>
+<tr><td class="c">工件材料</td><td>铝薄板，厚度 0.5 mm</td></tr>
+<tr><td class="c">装夹方式</td><td>6 点磁性夹紧，近乎覆盖板面</td></tr>
+<tr><td class="c">冷却润滑</td><td>干切（未使用切削液）</td></tr>
+<tr><td class="c">测量仪器</td><td>便携式表面粗糙度仪，沿进给方向测量</td></tr>
+<tr><td class="c">环境</td><td>现场车间环境，常温</td></tr>
+</table>
+<p class="cap">表 2　实验环境与设备配置</p>
+
+<h2>四、实验结果</h2>
+
+<h3>4.1　与历史基线对比（关键）</h3>
+
+<table>
+<tr><th style="width:42%">数据来源</th><th style="width:28%">Ra 水平 (μm)</th><th>说明</th></tr>
+<tr><td class="c">历史实验基线<br>（同设备，未使用超声刀柄）</td><td class="c"><b>≤ 3.0，最好 1.6</b></td><td class="c">正常水平</td></tr>
+<tr><td class="c"><b>本次实验（全部 30 组）</b></td><td class="c"><b>3.0 ～ 4.6，均值 3.69</b></td><td class="c">异常偏高</td></tr>
+<tr><td class="c">差距</td><td class="c"><b>约 2.3 倍</b></td><td class="c">—</td></tr>
+</table>
+<p class="cap">表 3　与历史基线的对比（假定其余条件基本可比）</p>
+
+<div class="warn">
+<p><b>同一台机器人、同一套工艺路线，在有／无超声两种状态下 Ra 均在 3 μm 以上，且与历史基线差距达 2 倍以上——说明当前加工系统存在未受控的干扰因素，本次数据不具备代表性。</b></p>
+</div>
+
+<h3>4.2　超声开启 / 关闭对比</h3>
+
+<table>
+<tr><th style="width:22%">主轴转速<br>(rpm)</th><th style="width:19%">开超声<br>Ra (μm)</th><th style="width:19%">不开超声<br>Ra (μm)</th><th style="width:19%">差值<br>(μm)</th><th>相对差异</th></tr>
+<tr><td class="c">3000</td><td class="c">3.939</td><td class="c">3.735</td><td class="c">+0.204</td><td class="c">+5.5%</td></tr>
+<tr><td class="c">4000</td><td class="c">3.459</td><td class="c">3.643</td><td class="c">−0.184</td><td class="c">−5.0%</td></tr>
+<tr><td class="c">5000</td><td class="c">3.889</td><td class="c">3.693</td><td class="c">+0.196</td><td class="c">+5.3%</td></tr>
+<tr><td class="c">6000</td><td class="c">3.278</td><td class="c">3.675</td><td class="c">−0.397</td><td class="c">−10.8%</td></tr>
+<tr><td class="c"><b>总体平均</b></td><td class="c"><b>3.691</b></td><td class="c"><b>3.688</b></td><td class="c"><b>+0.003</b></td><td class="c"><b>+0.08%</b></td></tr>
+</table>
+<p class="cap">表 4　超声开启 / 关闭的 Ra 对比（每条件 15 个测点）</p>
+
+<h3>4.3　转速的影响</h3>
+
+<table>
+<tr><th style="width:24%">主轴转速 (rpm)</th><th style="width:22%">每齿进给 (μm)</th><th style="width:24%">Ra 总均值 (μm)</th><th>相对 3000 rpm</th></tr>
+<tr><td class="c">3000</td><td class="c">25.0</td><td class="c">3.837</td><td class="c">—</td></tr>
+<tr><td class="c">4000</td><td class="c">18.8</td><td class="c">3.551</td><td class="c">−7.5%</td></tr>
+<tr><td class="c">5000</td><td class="c">15.0</td><td class="c">3.441</td><td class="c">−10.3%</td></tr>
+<tr><td class="c">6000</td><td class="c">12.5</td><td class="c">3.476</td><td class="c">−9.4%</td></tr>
+</table>
+<p class="cap">表 5　转速与每齿进给对 Ra 的影响</p>
+
+<h2>五、结论</h2>
+
+<div class="warn">
+<p><b>结论一：本次实验数据异常，存在未受控的干扰因素</b></p>
+<p>① 同设备历史实验中，未使用超声刀柄时 Ra 稳定在 3 μm 以下，最好可达 <b>1.6 μm</b>；本次 30 组数据全部落在 <b>3.0–4.6 μm</b>，均值 <b>3.69 μm</b>，约为历史水平的 <b>2.3 倍</b>。</p>
+<p>② 同一台机器人、同一套工艺条件，结果不应出现如此量级的差距，说明当前加工状态异常。</p>
+<p><b>③ 因此本次数据不具备代表性，不能用于评价超声刀柄的效果。</b></p>
+</div>
+
+<div class="key">
+<p><b>结论二：Ra 对转速无有效响应，进一步印证系统异常</b></p>
+<p>按切削理论，转速升高 → 每齿进给减小 → Ra 应显著下降。本次转速由 3000 提升至 6000 rpm，每齿进给由 25.0 μm 降至 12.5 μm（<b>减小一半</b>），而 Ra 仅变化 <b>9%</b>，且无单调下降趋势。</p>
+<p>正常切削状态下不应出现该现象。该结果与结论一相互印证：<b>表面形成过程已被非切削因素主导，切削参数失去调节作用。</b></p>
+</div>
+
+<div class="key">
+<p><b>结论三：超声开启 / 关闭对 Ra 无显著差异</b></p>
+<p>开超声与不开超声的 Ra 均值分别为 <b>3.691 μm</b> 与 <b>3.688 μm</b>，差值仅 <b>0.003 μm（0.08%）</b>，统计上无显著差异（t 检验 p ≈ 0.98，95% 置信区间 −0.28 ~ +0.29 μm）。</p>
+<p>但需强调：<b>该“无差异”结论建立在一个已偏离正常状态的实验系统之上，不足以说明超声刀柄本身无效。</b></p>
+</div>
+
+<div class="key">
+<p><b>结论四：实验系统重复性不足</b></p>
+<p>5000 rpm 条件重复两次，同条件 Ra 差异达 <b>0.55–0.85 μm</b>，约为超声效应的 <b>200 倍</b>，信噪比约 0.5，低于可分辨下限。</p>
+</div>
+
+<div class="key">
+<p><b>结论五：总体判定</b></p>
+<p>综合以上，<b>本次实验未能获得可用于评价超声效果的可靠数据</b>。干扰因素的量级（1–2 μm）远大于待评价的超声效应（0.2–0.3 μm），任何对比均被掩盖。</p>
+<p><b>后续工作应先复现历史基线（Ra ≤ 3 μm，目标 ≤ 2 μm），再重新开展超声对比实验。</b></p>
+</div>
+
+<h2>六、干扰因素排查与后续建议</h2>
+
+<p><b>第一步：复现历史基线（优先）</b></p>
+<ul>
+<li>关闭超声，采用历史实验的刀具、参数与装夹方式，验证能否重新达到 Ra ≤ 3 μm。</li>
+<li>若可复现 → 说明问题出在本次新增变量（超声刀柄、磁吸装夹、参数），可定向排查。</li>
+<li>若不可复现 → 说明设备本身状态已变化，需先检修。</li>
+</ul>
+
+<p><b>第二步：按优先级排查干扰因素</b></p>
+
+<table>
+<tr><th style="width:12%">优先级</th><th style="width:36%">干扰因素</th><th>措施</th></tr>
+<tr><td class="c"><b>P0</b></td><td>工件支撑不足（0.5 mm 薄板让刀）</td><td>背面加实心垫板；磁吸点之间填充垫片</td></tr>
+<tr><td class="c"><b>P0</b></td><td>铝材干切产生积屑瘤</td><td>施加切削油或 MQL 微量润滑</td></tr>
+<tr><td class="c"><b>P0</b></td><td>刀具径向跳动超差</td><td>千分表检测，控制 ≤ 5 μm（φ10 在 ER16 中为极限夹持）</td></tr>
+<tr><td class="c">P1</td><td>装夹方式改变（磁吸 vs 历史方案）</td><td>恢复历史装夹方式做对照</td></tr>
+<tr><td class="c">P1</td><td>超声刀柄引入的额外影响</td><td>更换为普通刀柄做对照实验</td></tr>
+<tr><td class="c">P2</td><td>径向切宽过大（ae = 全板厚）</td><td>改为 0.25 mm，分两刀</td></tr>
+</table>
+<p class="cap">表 6　干扰因素排查清单</p>
+
+<p><b>第三步：更换评价指标与验证材料</b></p>
+<ul>
+<li>评价指标：改为<b>主轴功率 / 电流</b>或<b>毛刺高度</b>，二者对超声的敏感度显著高于 Ra。</li>
+<li>验证材料：如刀柄目标为难切削材料，建议改用 45 钢或 304 不锈钢薄板，超声效应量通常为铝的 3–5 倍。</li>
+</ul>
+
+<p style="margin-top:14pt; font-size:9pt; color:#555;">
+注：本结论适用于“铝 + 0.5 mm 薄板 + 干切 + 全板厚切入 + 300 mm/min”这一特定组合；历史基线对比假定其余条件基本可比。
+</p>
+
+</body>
+</html>

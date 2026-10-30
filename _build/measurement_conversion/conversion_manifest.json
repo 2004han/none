@@ -1,0 +1,177 @@
+[
+  {
+    "id": 1,
+    "latex": "{f}_{s}\\geq \\frac{{v}_{\\mathrm{max}}}{{\\Delta s}_{\\mathrm{max}}}",
+    "native_bytes": 312,
+    "width_pt": 42.0,
+    "height_pt": 16.0
+  },
+  {
+    "id": 2,
+    "latex": "{f}_{s}",
+    "native_bytes": 222,
+    "width_pt": 7.0,
+    "height_pt": 11.0
+  },
+  {
+    "id": 3,
+    "latex": "{v}_{\\mathrm{max}}",
+    "native_bytes": 232,
+    "width_pt": 19.0,
+    "height_pt": 7.0
+  },
+  {
+    "id": 4,
+    "latex": "{\\Delta s}_{\\mathrm{max}}",
+    "native_bytes": 237,
+    "width_pt": 26.0,
+    "height_pt": 10.0
+  },
+  {
+    "id": 5,
+    "latex": "i=1,\\ldots ,m",
+    "native_bytes": 234,
+    "width_pt": 50.0,
+    "height_pt": 10.0
+  },
+  {
+    "id": 6,
+    "latex": "m",
+    "native_bytes": 204,
+    "width_pt": 8.0,
+    "height_pt": 6.0
+  },
+  {
+    "id": 7,
+    "latex": "j=1,\\ldots ,n",
+    "native_bytes": 234,
+    "width_pt": 47.0,
+    "height_pt": 11.0
+  },
+  {
+    "id": 8,
+    "latex": "n",
+    "native_bytes": 204,
+    "width_pt": 6.0,
+    "height_pt": 6.0
+  },
+  {
+    "id": 9,
+    "latex": "k=1,\\ldots ,{N}_{j}",
+    "native_bytes": 252,
+    "width_pt": 54.0,
+    "height_pt": 12.0
+  },
+  {
+    "id": 10,
+    "latex": "{N}_{j}",
+    "native_bytes": 222,
+    "width_pt": 10.0,
+    "height_pt": 12.0
+  },
+  {
+    "id": 11,
+    "latex": "{q}_{i}",
+    "native_bytes": 222,
+    "width_pt": 9.0,
+    "height_pt": 8.0
+  },
+  {
+    "id": 12,
+    "latex": "{r}_{ij}",
+    "native_bytes": 227,
+    "width_pt": 10.0,
+    "height_pt": 9.0
+  },
+  {
+    "id": 13,
+    "latex": "{g}_{i}",
+    "native_bytes": 222,
+    "width_pt": 9.0,
+    "height_pt": 8.0
+  },
+  {
+    "id": 14,
+    "latex": "{a}_{jk}",
+    "native_bytes": 227,
+    "width_pt": 12.0,
+    "height_pt": 9.0
+  },
+  {
+    "id": 15,
+    "latex": "{\\left\\Vert \\cdot \\right\\Vert}_{2}",
+    "native_bytes": 242,
+    "width_pt": 17.0,
+    "height_pt": 6.0
+  },
+  {
+    "id": 16,
+    "latex": "{g}_{i}=\\frac{1}{n}\\sum_{j=1}^{n}{r}_{ij}",
+    "native_bytes": 322,
+    "width_pt": 54.0,
+    "height_pt": 29.0
+  },
+  {
+    "id": 17,
+    "latex": "{AT}_{p}=\\underset{1\\leq i\\leq m}{\\mathrm{max}}{\\left\\Vert {g}_{i}-{q}_{i}\\right\\Vert}_{2}",
+    "native_bytes": 377,
+    "width_pt": 108.0,
+    "height_pt": 18.0
+  },
+  {
+    "id": 18,
+    "latex": "{l}_{ij}={\\left\\Vert {r}_{ij}-{g}_{i}\\right\\Vert}_{2}",
+    "native_bytes": 326,
+    "width_pt": 69.0,
+    "height_pt": 13.0
+  },
+  {
+    "id": 19,
+    "latex": "{\\overline{l}}_{i}=\\frac{1}{n}\\sum_{j=1}^{n}{l}_{ij}",
+    "native_bytes": 332,
+    "width_pt": 50.0,
+    "height_pt": 29.0
+  },
+  {
+    "id": 20,
+    "latex": "{S}_{{l}_{i}}=\\sqrt{\\frac{\\sum_{j=1}^{n}{\\left({l}_{ij}-{\\overline{l}}_{i}\\right)}^{2}}{n-1}}",
+    "native_bytes": 434,
+    "width_pt": 82.0,
+    "height_pt": 33.0
+  },
+  {
+    "id": 21,
+    "latex": "{RT}_{p}=\\underset{1\\leq i\\leq m}{\\mathrm{max}}\\left({\\overline{l}}_{i}+3{S}_{{l}_{i}}\\right)",
+    "native_bytes": 392,
+    "width_pt": 110.0,
+    "height_pt": 21.0
+  },
+  {
+    "id": 22,
+    "latex": "{S}_{jk}",
+    "native_bytes": 227,
+    "width_pt": 12.0,
+    "height_pt": 12.0
+  },
+  {
+    "id": 23,
+    "latex": "{e}_{jk}=\\mathrm{dist}\\left({a}_{jk},{S}_{jk}\\right)",
+    "native_bytes": 333,
+    "width_pt": 82.0,
+    "height_pt": 13.0
+  },
+  {
+    "id": 24,
+    "latex": "{E}_{j}=\\underset{1\\leq k\\leq {N}_{j}}{\\mathrm{max}}{e}_{jk}",
+    "native_bytes": 329,
+    "width_pt": 69.0,
+    "height_pt": 19.0
+  },
+  {
+    "id": 25,
+    "latex": "{E}_{\\mathrm{max}}=\\underset{1\\leq j\\leq n}{\\mathrm{max}}{E}_{j}",
+    "native_bytes": 316,
+    "width_pt": 75.0,
+    "height_pt": 18.0
+  }
+]
